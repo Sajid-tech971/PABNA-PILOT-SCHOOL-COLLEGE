@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Website</title>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- Root Variables & Base Setup --- */
+        :root {
+            --primary-color: #1e3a8a;
+            --primary-hover: #1e40af;
+            --accent-color: #f59e0b;
+            --bg-light: #f8fafc;
+            --card-bg: #ffffff;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --drawer-width: 280px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.5;
+            padding-bottom: 40px;
+        }
+
+        /* --- Header & Top Left 3-Dot Floating Button --- */
+        .header-nav {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 100;
+        }
+
+        .menu-toggle-btn {
+            background: rgba(30, 58, 138, 0.85);
+            color: #ffffff;
+            border: none;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+            backdrop-filter: blur(4px);
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .menu-toggle-btn:hover {
+            background: var(--primary-color);
+            transform: scale(1.05);
+        }
+
+        /* --- Side Drawer Menu --- */
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .drawer-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .side-drawer {
+            position: fixed;
+            top: 0;
+            left: calc(-1 * var(--drawer-width));
+            width: var(--drawer-width);
+            height: 100%;
+            background: var(--card-bg);
+            z-index: 201;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.15);
+            transition: left 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .side-drawer.active {
+            left: 0;
+        }
+
+        .drawer-header {
+            background: var(--primary-color);
+            color: #fff;
+            padding: 20px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .drawer-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .drawer-close-btn {
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .drawer-content {
+            padding: 16px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .drawer-section-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .drawer-menu-list {
+            list-style: none;
+            margin-bottom: 24px;
+        }
+
+        .drawer-menu-list li {
+            margin-bottom: 8px;
+        }
+
+        /* Direct LINK STYLE for Drawer Links (Opens in Same Tab) */
+        .drawer-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            background: #f1f5f9;
+            color: var(--text-dark);
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .drawer-link:hover {
+            background: var(--primary-color);
+            color: #fff;
+        }
+
+        .drawer-link i {
+            width: 20px;
+            text-align: center;
+            color: var(--primary-color);
+        }
+
+        .drawer-link:hover i {
+            color: #fff;
+        }
+
+        .drawer-dev-btn {
+            width: 100%;
+            padding: 12px 14px;
+            background: #e2e8f0;
+            color: var(--text-dark);
+            border: none;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .drawer-dev-btn:hover {
+            background: #cbd5e1;
+        }
+
+        /* --- Full Width Edge-to-Edge Cover Section --- */
+        .cover-container {
+            width: 100%;
+            position: relative;
+            background: #1e293b;
+            line-height: 0;
+        }
+
+        .cover-image {
+            width: 100%;
+            height: auto;
+            max-height: 480px;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Color Accent Divider Line */
+        .accent-divider {
+            height: 6px;
+            width: 100%;
+            background: linear-gradient(90deg, #1e3a8a 0%, #3b82f6 50%, #f59e0b 100%);
+        }
+
+        /* --- Main Content Wrapper --- */
+        .main-wrapper {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+        /* --- Quick Social & Contact Bar --- */
+        .quick-links-section {
+            margin: 20px 0 30px 0;
+        }
+
+        .quick-links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+        }
+
+        .quick-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 10px;
+            border-radius: 8px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.88rem;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+            transition: transform 0.2s, opacity 0.2s;
+        }
+
+        .quick-btn:hover {
+            transform: translateY(-2px);
+            opacity: 0.95;
+        }
+
+        .btn-fb-group { background-color: #1877f2; }
+        .btn-fb-page { background-color: #0d6efd; }
+        .btn-wa-acc { background-color: #25d366; }
+        .btn-wa-group { background-color: #128c7e; }
+
+        /* --- Section Styling --- */
+        .section-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            border: 1px solid var(--border-color);
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: var(--primary-color);
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .school-summary-text {
+            color: #334155;
+            font-size: 0.98rem;
+            line-height: 1.7;
+        }
+
+        /* --- Teachers Grid Section --- */
+        .teachers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .teacher-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .teacher-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+        }
+
+        .teacher-img-wrapper {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 12px auto;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid var(--primary-color);
+            background: #e2e8f0;
+        }
+
+        .teacher-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .teacher-card:hover .teacher-img {
+            transform: scale(1.08);
+        }
+
+        .teacher-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .teacher-designation {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* --- Modals (Teacher Details & Developer Info) --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 300;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.25s ease, visibility 0.25s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-box {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 420px;
+            border-radius: 16px;
+            padding: 24px;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            transform: scale(0.9);
+            transition: transform 0.25s ease;
+            text-align: center;
+        }
+
+        .modal-overlay.active .modal-box {
+            transform: scale(1);
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            background: #f1f5f9;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 1rem;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .modal-img-wrapper {
+            width: 130px;
+            height: 130px;
+            margin: 0 auto 16px auto;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 4px solid var(--primary-color);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .modal-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .modal-subtitle {
+            font-size: 0.9rem;
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .links-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .contact-link-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #fff;
+            transition: opacity 0.2s;
+        }
+
+        .contact-link-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Color Schemes for Teacher Links */
+        .link-facebook { background-color: #1877f2; }
+        .link-whatsapp { background-color: #25d366; }
+        .link-messenger { background-color: #0084ff; }
+        .link-phone { background-color: #10b981; }
+        .link-email { background-color: #ef4444; }
+        .link-telegram { background-color: #229ed9; }
+        .link-linkedin { background-color: #0a66c2; }
+        .link-twitter { background-color: #1da1f2; }
+        .link-website { background-color: #6366f1; }
+        .link-youtube { background-color: #ff0000; }
+
+        /* --- Footer --- */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. Floating Three-Dot Menu Button (Top Left Corner) -->
+    <div class="header-nav">
+        <button class="menu-toggle-btn" id="openDrawerBtn" title="Menu">
+            <i class="fa-solid => fa-ellipsis-vertical"></i>
+        </button>
+    </div>
+
+    <!-- 2. Side Drawer & Overlay -->
+    <div class="drawer-overlay" id="drawerOverlay"></div>
+    <aside class="side-drawer" id="sideDrawer">
+        <div class="drawer-header">
+            <h3>Navigation & Portals</h3>
+            <button class="drawer-close-btn" id="closeDrawerBtn"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="drawer-content">
+            <div class="drawer-section-title">Extra School Tools</div>
+            <ul class="drawer-menu-list">
+                
+                <!-- 
+                  ====================================================
+                  PLACEHOLDER LINKS FOR EXTRA WEBSITES
+                  Replace href="#" with your actual website URL.
+                  Target is set to "_self" to open in the SAME TAB.
+                  ====================================================
+                -->
+                <li>
+                    <a href="https://sajid-tech971.github.io/PPSC-photo-frame-generator/" target="_self" class="drawer-link">
+                        <i class="fa-solid fa-camera-retro"></i>
+                        <span>Photo Frame Generator</span>
+                    </a>
+                </li>
+		
+
+            </ul>
+
+            <div class="drawer-section-title">About Developer</div>
+            <button class="drawer-dev-btn" id="openDevModalBtn">
+                <i class="fa-solid fa-code"></i>
+                <span>Developer Info</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- 3. Full-Width Edge-to-Edge Cover Photo Section -->
+    <div class="cover-container">
+        <!-- Replace 'images/cover.jpg' with your edited cover photo path -->
+        <img src="images/cover.jpg" alt="School Cover Banner" class="cover-image" id="coverImg" onerror="this.src='https://via.placeholder.com/1920x1080/1e3a8a/ffffff?text=Upload+Your+Custom+Cover+Photo+(1920x1080)';">
+    </div>
+
+    <!-- Color Accent Divider Line -->
+    <div class="accent-divider"></div>
+
+    <!-- Main Content Container -->
+    <div class="main-wrapper">
+
+        <!-- 4. Quick Social Links & Groups -->
+        <section class="quick-links-section">
+            <div class="quick-links-grid">
+                <!-- Replace href="#" with actual links -->
+                <a href="https://www.facebook.com/groups/712900164111358/" target="_blank" class="quick-btn btn-fb-group">
+                    <i class="fa-brands fa-facebook"></i> FB Group
+                </a>
+                <a href="https://www.facebook.com/profile.php?id=100090242331582" target="_blank" class="quick-btn btn-fb-page">
+                    <i class="fa-brands fa-facebook-f"></i> FB Page
+                </a>
+                <a href="https://api.whatsapp.com/send/?phone=%2B8801712406544&text&type=phone_number&app_absent=0" target="_blank" class="quick-btn btn-wa-acc">
+                    <i class="fa-brands fa-whatsapp"></i> WhatsApp
+                </a>
+                <a href="https://chat.whatsapp.com/Cg3ukd86YXD5Hdtfqk599k" target="_blank" class="quick-btn btn-wa-group">
+                    <i class="fa-solid fa-users"></i> WA Group
+                </a>
+		<a href="mailto:pabnapilotschool@gmail.com" target="_blank" class="quick-btn btn-wa-group">
+    <i class="fa-solid fa-envelope"></i> E-mail
+</a>
+            </div>
+        </section>
+
+        <!-- 5. School Summary Section -->
+        <section class="section-card">
+            <h2 class="section-title">
+                <i class="fa-solid fa-school"></i> About Our School
+            </h2>
+            <p class="school-summary-text">
+                Welcome to our school's official digital platform. We are committed to providing quality education, fostering innovation, and building strong moral values in our students. Explore our campus portals, faculty details, and academic resources through this application.
+            </p>
+        </section>
+
+        <!-- 6. Teachers Directory Section -->
+        <section class="section-card">
+            <h2 class="section-title">
+                <i class="fa-solid fa-user-tie"></i> Our Respectable Teachers
+            </h2>
+            <div class="teachers-grid" id="teachersGrid">
+                <!-- Teachers cards will be generated dynamically via JavaScript -->
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            &copy; 2026 School Website. All Rights Reserved.
+        </footer>
+	<footer class="footer"> 
+  Create with ❤️ by <a href="https://sajid-tech971.github.io/MY-BIO/" class="footer-link">𝓜𝓓 𝓢𝓐𝓓𝓘𝓓 𝓗𝓐𝓢𝓐𝓝 𝓢𝓐𝓙𝓘𝓓</a>👑
+</footer>
+
+    </div>
+
+    <!-- 7. Teacher Profile Zoom Modal -->
+    <div class="modal-overlay" id="teacherModal">
+        <div class="modal-box">
+            <button class="modal-close-btn" id="closeTeacherModal">&times;</button>
+            <div class="modal-img-wrapper">
+                <img src="" alt="Teacher Image" class="modal-img" id="modalTeacherImg">
+            </div>
+            <h3 class="modal-title" id="modalTeacherName">Teacher Name</h3>
+            <div class="modal-subtitle" id="modalTeacherDesig">Designation</div>
+            
+            <div class="links-container" id="modalTeacherLinks">
+                <!-- Links dynamically populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 8. Developer Info Modal -->
+    <div class="modal-overlay" id="devModal">
+        <div class="modal-box">
+            <button class="modal-close-btn" id="closeDevModal">&times;</button>
+            <div style="font-size: 2.5rem; color: var(--primary-color); margin-bottom: 10px;">
+                <i class="fa-solid fa-laptop-code"></i>
+            </div>
+            <h3 class="modal-title">Developer Info</h3>
+            <div class="modal-subtitle">Web Architecture & Engineering</div>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">
+                This portal was custom developed for optimum mobile responsiveness and fast execution.
+            </p>
+            <div class="links-container">
+                <!-- Insert your direct developer link here -->
+                <a href="https://sajid-tech971.github.io/MY-BIO/" target="_self" class="contact-link-btn link-facebook">
+                    <i class="fa-solid fa-link"></i> Visit Developer Profile
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript logic -->
+    <script>
+        /* =========================================================================
+           TEACHERS DATA STRUCTURE
+           Edit, add, or remove teachers here.
+           Only add non-empty values for active links.
+           Empty string ("") or missing fields will automatically hide that button!
+           ========================================================================= */
+        const teachersData = [
+            {
+                id: 1,
+                name: "Ikramul Haque",
+                designation: "Chairman PPSC",
+                image: "images/teachers/ikram.jpeg",
+                links: {
+                    facebook: "https://www.facebook.com/Ikram.pabna6544",
+                    whatsapp: "https://wa.me/+8801712406544",
+                    messenger: "",
+                    phone: "tel:+8801712406544",
+                    email: "",
+                    telegram: "",
+                    linkedin: "",
+                    twitter: "",
+                    website: "",
+                    youtube: ""
+                }
+            },
+            {
+                id: 2,
+                name: "Rashidul Islam Rashed",
+                designation: "Principal",
+                image: "images/teachers/rashed.jpg",
+                links: {
+                    facebook: "https://www.facebook.com/rashed.pabna87",
+                    whatsapp: "https://wa.me/+8801718780699",
+                    messenger: "",
+                    phone: "tel:+8801718780699",
+                    email: "",
+                    telegram: "",
+                    linkedin: "",
+                    twitter: "",
+                    website: "",
+                    youtube: ""
+                }
+            },
+            {
+                id: 3,
+                name: "Amit Chanda",
+                designation: "Chemistry & Higher Math Teacher",
+                image: "images/teachers/amit.jpg",
+                links: {
+                    facebook: "https://www.facebook.com/amit.chanda.908945",
+                    whatsapp: "https://wa.me/@Amit200535",
+                    messenger: "",
+                    phone: "tel:+8801613064105",
+                    email: "",
+                    telegram: "",
+                    linkedin: "",
+                    twitter: "",
+                    website: "",
+                    youtube: ""
+                }
+            },
+            {
+                id: 4,
+                name: "Marzan Shawon",
+                designation: "Asst. Teacher (English)",
+                image: "images/teachers/shawon.jpeg",
+                links: {
+                    facebook: "https://www.facebook.com/marzan.shawon?comment_id=Y29tbWVudDoxMjIxOTY1NjQzMjA5Mzk3OTVfMTQzOTk5ODIzODIyMDY2Mg%3D%3D",
+                    whatsapp: "https://wa.me/+8801758600334",
+                    messenger: "",
+                    phone: "tel:+8801758600334",
+                    email: "",
+                    telegram: "",
+                    linkedin: "",
+                    twitter: "",
+                    website: "",
+                    youtube: ""
+                }
+            }
+        ];
+
+        /* Map link types to button icons and display texts */
+        const linkConfig = {
+            facebook: { icon: "fa-brands fa-facebook", text: "Facebook Profile", class: "link-facebook" },
+            whatsapp: { icon: "fa-brands fa-whatsapp", text: "WhatsApp Contact", class: "link-whatsapp" },
+            messenger: { icon: "fa-brands fa-facebook-messenger", text: "Facebook Messenger", class: "link-messenger" },
+            phone: { icon: "fa-solid fa-phone", text: "Direct Call", class: "link-phone" },
+            email: { icon: "fa-solid fa-envelope", text: "Send Email", class: "link-email" },
+            telegram: { icon: "fa-brands fa-telegram", text: "Telegram", class: "link-telegram" },
+            linkedin: { icon: "fa-brands fa-linkedin", text: "LinkedIn Profile", class: "link-linkedin" },
+            twitter: { icon: "fa-brands fa-x-twitter", text: "Twitter / X", class: "link-twitter" },
+            website: { icon: "fa-solid fa-globe", text: "Personal Website", class: "link-website" },
+            youtube: { icon: "fa-brands fa-youtube", text: "YouTube Channel", class: "link-youtube" }
+        };
+
+        // --- Render Teachers Grid ---
+        const teachersGrid = document.getElementById('teachersGrid');
+
+        function renderTeachers() {
+            teachersGrid.innerHTML = "";
+            teachersData.forEach(teacher => {
+                const card = document.createElement('div');
+                card.className = 'teacher-card';
+                card.onclick = () => openTeacherModal(teacher);
+
+                card.innerHTML = `
+                    <div class="teacher-img-wrapper">
+                        <img src="${teacher.image}" alt="${teacher.name}" class="teacher-img" onerror="this.src='https://via.placeholder.com/150/1e3a8a/ffffff?text=Teacher';">
+                    </div>
+                    <div class="teacher-name">${teacher.name}</div>
+                    <div class="teacher-designation">${teacher.designation}</div>
+                `;
+                teachersGrid.appendChild(card);
+            });
+        }
+
+        // --- Drawer Navigation Toggle ---
+        const openDrawerBtn = document.getElementById('openDrawerBtn');
+        const closeDrawerBtn = document.getElementById('closeDrawerBtn');
+        const sideDrawer = document.getElementById('sideDrawer');
+        const drawerOverlay = document.getElementById('drawerOverlay');
+
+        function openDrawer() {
+            sideDrawer.classList.add('active');
+            drawerOverlay.classList.add('active');
+        }
+
+        function closeDrawer() {
+            sideDrawer.classList.remove('active');
+            drawerOverlay.classList.remove('active');
+        }
+
+        openDrawerBtn.addEventListener('click', openDrawer);
+        closeDrawerBtn.addEventListener('click', closeDrawer);
+        drawerOverlay.addEventListener('click', closeDrawer);
+
+        // --- Teacher Zoom & Detail Modal Logic ---
+        const teacherModal = document.getElementById('teacherModal');
+        const closeTeacherModal = document.getElementById('closeTeacherModal');
+        const modalTeacherImg = document.getElementById('modalTeacherImg');
+        const modalTeacherName = document.getElementById('modalTeacherName');
+        const modalTeacherDesig = document.getElementById('modalTeacherDesig');
+        const modalTeacherLinks = document.getElementById('modalTeacherLinks');
+
+        function openTeacherModal(teacher) {
+            modalTeacherImg.src = teacher.image;
+            modalTeacherImg.onerror = function() {
+                this.src = 'https://via.placeholder.com/150/1e3a8a/ffffff?text=Teacher';
+            };
+            modalTeacherName.textContent = teacher.name;
+            modalTeacherDesig.textContent = teacher.designation;
+
+            // Clear previous links
+            modalTeacherLinks.innerHTML = "";
+
+            // Check each link key and append button if non-empty
+            if (teacher.links) {
+                Object.keys(linkConfig).forEach(key => {
+                    const url = teacher.links[key];
+                    if (url && url.trim() !== "") {
+                        const conf = linkConfig[key];
+                        const linkBtn = document.createElement('a');
+                        linkBtn.href = url;
+                        linkBtn.target = "_blank";
+                        linkBtn.className = `contact-link-btn ${conf.class}`;
+                        linkBtn.innerHTML = `<i class="${conf.icon}"></i> ${conf.text}`;
+                        modalTeacherLinks.appendChild(linkBtn);
+                    }
+                });
+            }
+
+            teacherModal.classList.add('active');
+        }
+
+        closeTeacherModal.addEventListener('click', () => {
+            teacherModal.classList.remove('active');
+        });
+
+        teacherModal.addEventListener('click', (e) => {
+            if (e.target === teacherModal) {
+                teacherModal.classList.remove('active');
+            }
+        });
+
+        // --- Developer Info Modal Logic ---
+        const openDevModalBtn = document.getElementById('openDevModalBtn');
+        const devModal = document.getElementById('devModal');
+        const closeDevModal = document.getElementById('closeDevModal');
+
+        openDevModalBtn.addEventListener('click', () => {
+            closeDrawer();
+            devModal.classList.add('active');
+        });
+
+        closeDevModal.addEventListener('click', () => {
+            devModal.classList.remove('active');
+        });
+
+        devModal.addEventListener('click', (e) => {
+            if (e.target === devModal) {
+                devModal.classList.remove('active');
+            }
+        });
+
+        // Initialize Page
+        renderTeachers();
+    </script>
+</body>
+</html>
